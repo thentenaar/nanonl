@@ -24,6 +24,10 @@ AC_CANONICAL_HOST
 AC_C_CONST
 AC_TYPE_SIZE_T
 
+dnl Check for check
+AX_CHECK_DEP([check], [check.h], [check], [srunner_run_all], [nonfatal])
+AM_CONDITIONAL([HAVE_CHECK], [test "x$have_check" == "xyes"])
+
 dnl Enable netlink_generic support
 AC_ARG_ENABLE([generic],
 	[AS_HELP_STRING(

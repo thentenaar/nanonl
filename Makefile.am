@@ -1,6 +1,15 @@
 ACLOCAL_AMFLAGS = -I m4
 includedir=$(includedir)/nanonl
 
+if HAVE_CHECK
+check_PROGRAMS = tests
+tests_LDADD    = -lcheck
+tests_SOURCES  = test/gen.c test/nfqueue.c test/nl.c test/test.c
+
+check-local: tests
+	@./tests
+endif
+
 lib_LTLIBRARIES = libnanonl.la
 include_HEADERS = src/nl.h
 libnanonl_la_SOURCES = src/nl.c
