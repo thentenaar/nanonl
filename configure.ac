@@ -62,6 +62,6 @@ dnl Set-up CFLAGS
 CFLAGS="$CFLAGS -ansi"
 AX_STRICT_CFLAGS
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile example/Makefile])
 AC_OUTPUT
 

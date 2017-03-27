@@ -29,3 +29,9 @@ include_HEADERS += src/nl_nfqueue.h
 libnanonl_la_SOURCES += src/nl_nfqueue.c
 endif
 
+examples: 
+	@$(MAKE) -C example all
+
+clean-local:
+	@$(MAKE) -C example clean
+
