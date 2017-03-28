@@ -38,7 +38,7 @@
  * \param[in] pf Protocol family (i.e. PF_INET)
  */
 #define nl_nfqueue_bind_pf(m, pf) \
-	nl_nfqueue_cfg_cmd(NFQNL_CMD_CFG_PF_BIND, (pf))
+	nl_nfqueue_cfg_cmd((m), NFQNL_CFG_CMD_PF_BIND, (pf), 0)
 
 /**
  * \brief Unbind from the given protocol family
@@ -46,7 +46,7 @@
  * \param[in] pf Protocol family (i.e. PF_INET)
  */
 #define nl_nfqueue_unbind_pf(m, pf) \
-	nl_nfqueue_cfg_cmd(NFQNL_CMD_CFG_PF_UNBIND, (pf))
+	nl_nfqueue_cfg_cmd((m), NFQNL_CFG_CMD_PF_UNBIND, (pf), 0)
 #else
 #define nl_nfqueue_bind_pf(m, pf)
 #define nl_nfqueue_unbind_pf(m, pf)
@@ -111,6 +111,9 @@ void nl_nfqueue_verdict(struct nlmsghdr *m, __u16 queue_num,
  */
 void nl_nfqueue_verdict_mark(struct nlmsghdr *m, __u32 mark);
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,6,0)
+#define nl_nfqueue_verdict_ctmark(m, mark)
+#else
 /**
  * \brief Add a connmark to a verdict message
  * \param[in] m    Netlink message buffer.
@@ -119,9 +122,10 @@ void nl_nfqueue_verdict_mark(struct nlmsghdr *m, __u32 mark);
  * Instruct the kernel to add the given mark to the connection with
  * which this packet is associated.
  *
- * This requires CONFIG_NF_CONNTRACK_MARK in the kernel.
+ * This requires Linux >= 3.6 with CONFIG_NF_CONNTRACK_MARK set.
  */
 void nl_nfqueue_verdict_ctmark(struct nlmsghdr *m, __u32 mark);
+#endif /* Linux < 3.6 */
 
 #endif /* NL_NFQUEUE_H */
 

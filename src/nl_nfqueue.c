@@ -108,6 +108,7 @@ void nl_nfqueue_verdict_mark(struct nlmsghdr *m, __u32 mark)
 	nl_add_attr(m, NFQA_MARK, &mark, sizeof(__u32));
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0)
 /**
  * \brief Add a connmark to a verdict message
  * \param[in] m    Netlink message buffer.
@@ -116,7 +117,7 @@ void nl_nfqueue_verdict_mark(struct nlmsghdr *m, __u32 mark)
  * Instruct the kernel to add the given mark to the connection with
  * which this packet is associated.
  *
- * This requires CONFIG_NF_CONNTRACK_MARK in the kernel.
+ * This requires Linux >= 3.6 with CONFIG_NF_CONNTRACK_MARK set.
  */
 void nl_nfqueue_verdict_ctmark(struct nlmsghdr *m, __u32 mark)
 {
@@ -126,4 +127,5 @@ void nl_nfqueue_verdict_ctmark(struct nlmsghdr *m, __u32 mark)
 	nla_add_attr(nla, CTA_MARK, &mark, sizeof(mark));
 	nla_end(m, nla);
 }
+#endif
 

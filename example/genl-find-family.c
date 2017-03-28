@@ -39,7 +39,7 @@ int main(int argc, const char *argv[])
 		goto ret;
 	}
 
-	if (nl_send(fd, 0, m) != m->nlmsg_len) {
+	if ((__u32)nl_send(fd, 0, m) != m->nlmsg_len) {
 		fputs("Failed to send family lookup request\n", stderr);
 		goto ret;
 	}

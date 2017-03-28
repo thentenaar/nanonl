@@ -39,20 +39,20 @@ int main(int argc, const char *argv[])
 /* These calls aren't needed on Linux >= 3.8 */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,8,0)
 	nl_nfqueue_unbind_pf(m, PF_INET);
-	if (nl_send(fd, 0, m) != m->nlmsg_len) {
+	if ((__u32)nl_send(fd, 0, m) != m->nlmsg_len) {
 		fputs("Failed to send pfunbind message\n", stderr);
 		goto ret;
 	}
 
 	nl_nfqueue_bind_pf(m, PF_INET);
-	if (nl_send(fd, 0, m) != m->nlmsg_len) {
+	if ((__u32)nl_send(fd, 0, m) != m->nlmsg_len) {
 		fputs("Failed to send pfbind message\n", stderr);
 		goto ret;
 	}
 #endif
 
 	nl_nfqueue_bind(m, PF_INET, qn, NFQNL_COPY_PACKET, 0xffff, 0, 0);
-	if (nl_send(fd, 0, m) != m->nlmsg_len) {
+	if ((__u32)nl_send(fd, 0, m) != m->nlmsg_len) {
 		fputs("Failed to send bind message\n", stderr);
 		goto unbind;
 	} else printf("Bound to queue %u...\n", qn);
@@ -76,7 +76,7 @@ int main(int argc, const char *argv[])
 		phdr->packet_id = ntohl(phdr->packet_id);
 		printf("Accepting packet #%u\n", phdr->packet_id);
 		nl_nfqueue_verdict(m, qn, phdr->packet_id, NF_ACCEPT);
-		if (nl_send(fd, 0, m) != m->nlmsg_len) {
+		if ((__u32)nl_send(fd, 0, m) != m->nlmsg_len) {
 			fputs("Failed to send verdict message\n", stderr);
 			break;
 		}
@@ -84,12 +84,12 @@ int main(int argc, const char *argv[])
 
 unbind:
 	nl_nfqueue_unbind(m, PF_INET, qn);
-	if (nl_send(fd, 0, m) != m->nlmsg_len)
+	if ((__u32)nl_send(fd, 0, m) != m->nlmsg_len)
 		fputs("Failed to send unbind message\n", stderr);
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,8,0)
 	nl_nfqueue_unbind_pf(m, PF_INET);
-	if (nl_send(fd, 0, m) != m->nlmsg_len)
+	if ((__u32)nl_send(fd, 0, m) != m->nlmsg_len)
 		fputs("Failed to send pfunbind message\n", stderr);
 #endif
 

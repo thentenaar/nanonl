@@ -11,6 +11,7 @@
 #define NL_H
 
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <linux/netlink.h>
 
 /* Re-define these to avoid implicit int promotion */
