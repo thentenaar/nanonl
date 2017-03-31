@@ -20,6 +20,13 @@
 #define NLA_ALIGN(X) (((X) + 3) & 0xfffc)
 #define NLA_HDRLEN (NLA_ALIGN(sizeof(struct nlattr)))
 
+/* Re-define this to get rid of an alignment change warning */
+#undef NLMSG_NEXT
+#define NLMSG_NEXT(m, len) \
+	(((len) -= NLMSG_ALIGN((m)->nlmsg_len), \
+	(struct nlmsghdr *)(void *)((char *)(m)) + \
+	NLMSG_ALIGN((m)->nlmsg_len)))
+
 /**
  * This macro is simply to make getting a byte-aligned
  * pointer to a specific byte offset within a struct
