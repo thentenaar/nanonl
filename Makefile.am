@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
-includedir=$(includedir)/nanonl
+incdir=$(includedir)/nanonl
 
 if HAVE_CHECK
 check_PROGRAMS = tests
@@ -11,22 +11,32 @@ check-local: tests
 endif
 
 lib_LTLIBRARIES = libnanonl.la
-include_HEADERS = src/nl.h
+inc_HEADERS = src/nl.h
 libnanonl_la_SOURCES = src/nl.c
 
 if NL_GENERIC
-include_HEADERS += src/nl_gen.h
+inc_HEADERS += src/nl_gen.h
 libnanonl_la_SOURCES += src/nl_gen.c
 endif
 
 if NL_NETFILTER
-include_HEADERS += src/nl_nf.h
+inc_HEADERS += src/nl_nf.h
 libnanonl_la_SOURCES += src/nl_nf.c
 endif
 
 if NL_NFQUEUE
-include_HEADERS += src/nl_nfqueue.h
+inc_HEADERS += src/nl_nfqueue.h
 libnanonl_la_SOURCES += src/nl_nfqueue.c
+endif
+
+if NL_IFINFO
+inc_HEADERS += src/nl_ifinfo.h
+libnanonl_la_SOURCES += src/nl_ifinfo.c
+endif
+
+if NL_IFADDR
+inc_HEADERS += src/nl_ifaddr.h
+libnanonl_la_SOURCES += src/nl_ifaddr.c
 endif
 
 examples: 

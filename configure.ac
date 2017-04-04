@@ -58,6 +58,39 @@ AS_IF([test "x$enable_nfqueue" == "xyes"],[
 	AM_CONDITIONAL([NL_NETFILTER], [true])
 ])
 
+dnl Enable ifinfo support
+AC_ARG_ENABLE([ifinfo],
+	[AS_HELP_STRING(
+		[--enable-ifinfo],
+		[enable interface info support])
+	]
+)
+AM_CONDITIONAL([NL_IFINFO], [test "x$enable_ifinfo" == "xyes"])
+
+dnl Enable ifaddr support
+AC_ARG_ENABLE([ifaddr],
+	[AS_HELP_STRING(
+		[--enable-ifaddr],
+		[enable interface address support])
+	]
+)
+AM_CONDITIONAL([NL_IFADDR], [test "x$enable_ifaddr" == "xyes"])
+
+dnl Enable support for everything
+AC_ARG_ENABLE([all],
+	[AS_HELP_STRING(
+		[--enable-all],
+		[enable support for everything])
+	]
+)
+AS_IF([test "x$enable_all" == "xyes"],[
+	AM_CONDITIONAL([NL_IFINFO],    [true])
+	AM_CONDITIONAL([NL_IFADDR],    [true])
+	AM_CONDITIONAL([NL_NFQUEUE],   [true])
+	AM_CONDITIONAL([NL_NETFILTER], [true])
+	AM_CONDITIONAL([NL_GENERIC],   [true])
+])
+
 dnl Set-up CFLAGS
 CFLAGS="$CFLAGS -ansi"
 AX_STRICT_CFLAGS

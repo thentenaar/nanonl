@@ -224,6 +224,7 @@ read:
 		}
 	}
 
+	*len = (size_t)i;
 	return i;
 
 err:
