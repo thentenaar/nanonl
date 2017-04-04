@@ -39,16 +39,11 @@ int main(int argc, const char *argv[])
 		goto ret;
 	}
 
-	if ((__u32)nl_send(fd, 0, m) != m->nlmsg_len) {
-		fputs("Failed to send family lookup request\n", stderr);
-		goto ret;
-	}
-
 	errno = 0;
-	if (nl_recv(fd, m, &len, &pid) < 0 || !len) {
+	if (nl_transact(fd, m, len, &pid) <= 0) {
 		if (errno < 0)
 			fprintf(stderr, "Got netlink error #%d\n", errno);
-		else perror("Failed to read response");
+		else perror("Failed to do lookup request");
 		goto ret;
 	}
 

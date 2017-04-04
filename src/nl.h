@@ -85,7 +85,7 @@ ssize_t nl_send(int fd, __u32 port, struct nlmsghdr *msg);
  * \brief Receive a netlink message.
  * \param[in]     fd   Netlink socket file descriptor.
  * \param[in]     msg  Buffer to write the received message.
- * \param[in,out] len  Length (in bytes) of \a msg.
+ * \param[in]     len  Length (in bytes) of \a msg.
  * \param[out]    port Sender's port ID (set only if \a port is non-NULL.)
  * \return Number of bytes sent, or -1 on error (with \a errno set.)
  *
@@ -100,7 +100,20 @@ ssize_t nl_send(int fd, __u32 port, struct nlmsghdr *msg);
  *               message. If you want to abandon the message,
  *               simply \a close the socket.
  */
-ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t *len, __u32 *port);
+ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t len, __u32 *port);
+
+/**
+ * \brief Send a message and read the response
+ * \param[in]     fd   Netlink socket file descriptor.
+ * \param[in]     m    Buffer to send / recv.
+ * \param[in,out] len  Length (in bytes) of \a m.
+ * \param[in,out] port Destination port ID (the source port is returned)
+ * \return number of bytes read on success, < 0 on error.
+ *
+ * This is a convenience method for the typical case of using a blocking
+ * socket to communicate with netlink.
+ */
+ssize_t nl_transact(int fd, struct nlmsghdr *m, size_t len, __u32 *port);
 
 /**
  * \brief Initialize a netlink message.

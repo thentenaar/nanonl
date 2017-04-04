@@ -50,7 +50,7 @@ int main(void)
 		memset(m, 0, sizeof(*m));
 
 		puts("Waiting for events...");
-		if (nl_recv(fd, m, &len, &pid) < 0 || !len) {
+		if (nl_recv(fd, m, len, &pid) <= 0) {
 			if (errno < 0) {
 				fprintf(stderr, "Got netlink error #%d\n",
 				        errno);

@@ -137,7 +137,7 @@ ret:
  * \brief Receive a netlink message.
  * \param[in]     fd   Netlink socket file descriptor.
  * \param[in]     msg  Buffer to write the received message.
- * \param[in,out] len  Length (in bytes) of \a msg.
+ * \param[in]     len  Length (in bytes) of \a msg.
  * \param[out]    port Sender's port ID (set only if \a port is non-NULL.)
  * \return Number of bytes sent, or -1 on error (with \a errno set.)
  *
@@ -152,7 +152,7 @@ ret:
  *               message. If you want to abandon the message,
  *               simply \a close the socket.
  */
-ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t *len, __u32 *port)
+ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t len, __u32 *port)
 {
 	ssize_t i;
 	struct iovec iov;
@@ -160,7 +160,7 @@ ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t *len, __u32 *port)
 	struct sockaddr_nl sa;
 	int e = MSG_PEEK;
 
-	if (!msg || !len || *len < sizeof(struct nlmsghdr)) {
+	if (!msg || !len || len < sizeof(struct nlmsghdr)) {
 		errno = EINVAL;
 		goto err;
 	}
@@ -175,7 +175,7 @@ ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t *len, __u32 *port)
 	 * This will more likely be an indicator of something wrong
 	 * elsewhere.
 	 */
-	if (*len > (SIZE_MAX >> 1)) {
+	if (len > (SIZE_MAX >> 1)) {
 		errno = E2BIG;
 		goto err;
 	}
@@ -202,33 +202,61 @@ read:
 	} else e &= ~MSG_PEEK;
 
 	/* If we have a valid message, read it. */
-	if (i && msg->nlmsg_len > iov.iov_len && msg->nlmsg_len <= *len) {
+	if (i && msg->nlmsg_len > iov.iov_len && msg->nlmsg_len <= len) {
 		iov.iov_len = (size_t)msg->nlmsg_len;
 		if (port) *port = sa.nl_pid;
 		goto read;
 	}
 
 	/* Is the buffer too small? */
-	if ((size_t)msg->nlmsg_len > *len || !NLMSG_OK(msg, (size_t)i)) {
-		*len = (size_t)msg->nlmsg_len;
+	if ((size_t)msg->nlmsg_len > len || !NLMSG_OK(msg, (size_t)i)) {
 		errno = EMSGSIZE;
 		goto err;
 	}
 
 	/* Is this an error message? (error 0 is an ACK) */
 	if (msg->nlmsg_type == NLMSG_ERROR) {
-		*len = (size_t)msg->nlmsg_len;
 		if ((e = ((struct nlmsgerr *)NLMSG_DATA(msg))->error)) {
 			errno = e;
 			goto err;
 		}
 	}
 
-	*len = (size_t)i;
 	return i;
 
 err:
 	return -1;
+}
+
+/**
+ * \brief Send a message and read the response
+ * \param[in]     fd   Netlink socket file descriptor.
+ * \param[in]     m    Buffer to send / recv.
+ * \param[in,out] len  Length (in bytes) of \a m.
+ * \param[in,out] port Destination port ID (the source port is returned)
+ * \return number of bytes read on success, < 0 on error.
+ */
+ssize_t nl_transact(int fd, struct nlmsghdr *m, size_t len, __u32 *port)
+{
+	int flags;
+	ssize_t ret = -1;
+
+	if (!m || !len)
+		goto err;
+
+	/* Ensure the socket is blocking */
+	if ((flags = fcntl(fd, F_GETFL, 0)) == -1 ||
+	    fcntl(fd, F_SETFL, flags & ~O_NONBLOCK)) goto err;
+
+	/* Tx / Rx */
+	if ((size_t)nl_send(fd, port ? *port : 0, m) != m->nlmsg_len ||
+	    (ret = nl_recv(fd, m, len, port)) <= 0) goto err;
+
+	/* Restore fd flags */
+	if (fcntl(fd, F_SETFL, flags)) goto err;
+
+err:
+	return ret;
 }
 
 /**
