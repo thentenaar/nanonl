@@ -24,8 +24,8 @@
 #undef NLMSG_NEXT
 #define NLMSG_NEXT(m, len) \
 	(((len) -= NLMSG_ALIGN((m)->nlmsg_len), \
-	(struct nlmsghdr *)(void *)((char *)(m)) + \
-	NLMSG_ALIGN((m)->nlmsg_len)))
+	(struct nlmsghdr *)(void *)((char *)(m) + \
+	NLMSG_ALIGN((m)->nlmsg_len))))
 
 /**
  * This macro is simply to make getting a byte-aligned

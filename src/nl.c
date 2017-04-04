@@ -181,7 +181,7 @@ ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t len, __u32 *port)
 	}
 
 	iov.iov_base       = msg;
-	iov.iov_len        = sizeof(struct nlmsghdr);
+	iov.iov_len        = len;
 	hdr.msg_name       = &sa;
 	hdr.msg_namelen    = (socklen_t)sizeof(struct sockaddr_nl);
 	hdr.msg_iov        = &iov;
@@ -192,18 +192,14 @@ ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t len, __u32 *port)
 
 	if (fcntl(fd, F_GETFL) & O_NONBLOCK)
 		e |= MSG_DONTWAIT;
-	else e |= MSG_WAITALL;
 
 read:
 	/* Read the netlink header to get the message length */
-	if ((i = recvmsg(fd, &hdr, e)) < 0) {
+	if ((i = recvmsg(fd, &hdr, e)) <= 0) {
 		if (errno == EINTR) goto read;
 		goto err;
-	} else e &= ~MSG_PEEK;
-
-	/* If we have a valid message, read it. */
-	if (i && msg->nlmsg_len > iov.iov_len && msg->nlmsg_len <= len) {
-		iov.iov_len = (size_t)msg->nlmsg_len;
+	} else if (e & MSG_PEEK) {
+		e &= ~MSG_PEEK;
 		if (port) *port = sa.nl_pid;
 		goto read;
 	}
