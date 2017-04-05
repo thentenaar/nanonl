@@ -6,7 +6,7 @@ dnl See the LICENSE file for details.
 dnl
 AC_PREREQ([2.63])
 AC_INIT([nanonl], [1.0], [http://github.com/thentenaar/nanonl])
-AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign subdir-objects silent-rules])
 AM_SILENT_RULES([yes])

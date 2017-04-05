@@ -1,4 +1,3 @@
-ACLOCAL_AMFLAGS = -I m4
 incdir=$(includedir)/nanonl
 
 if HAVE_CHECK
