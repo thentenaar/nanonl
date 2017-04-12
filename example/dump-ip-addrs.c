@@ -1,6 +1,5 @@
 /**
  * nanonl: dump-ip-addrs: Dump all IP addresses
- *
  * Copyright (C) 2015 - 2017 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.

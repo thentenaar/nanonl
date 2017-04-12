@@ -1,6 +1,5 @@
 /**
  * nanonl: genl-find-family: simple NETLINK_GENERIC example
- *
  * Copyright (C) 2015 - 2017 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.

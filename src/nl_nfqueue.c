@@ -1,6 +1,5 @@
 /**
  * nanonl: Netlink Nfqueue Functions
- *
  * Copyright (C) 2015 - 2017 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.
@@ -9,8 +8,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <arpa/inet.h>
+#include <linux/version.h>
 #include <linux/netfilter/nfnetlink_conntrack.h>
 
 #include "nl.h"

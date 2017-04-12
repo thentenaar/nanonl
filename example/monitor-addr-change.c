@@ -1,6 +1,5 @@
 /**
  * nanonl: monitor-addr-change: Simple multicast example.
- *
  * Copyright (C) 2015 - 2017 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.

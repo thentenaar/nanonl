@@ -1,6 +1,5 @@
 /**
  * nanonl: Netlink Interface Info Functions
- *
  * Copyright (C) 2015 - 2017 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.
@@ -9,7 +8,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <limits.h>
 #include <arpa/inet.h>
 

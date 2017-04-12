@@ -7,8 +7,8 @@
  * This code is Licensed under the Simplified BSD License.
  * See the LICENSE file for details.
  */
-#ifndef N_IFADDR_H
-#define N_IFADDR_H
+#ifndef NL_IFADDR_H
+#define NL_IFADDR_H
 
 #include <sys/types.h>
 #include <linux/if_addr.h>

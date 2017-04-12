@@ -23,3 +23,8 @@ libtool
 .libs
 *.log
 test?
+example/dump-ip-addrs
+example/genl-find-family
+example/monitor-addr-change
+example/nfqueue
+
