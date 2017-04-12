@@ -58,6 +58,18 @@ AS_IF([test "x$enable_nfqueue" == "xyes"],[
 	AM_CONDITIONAL([NL_NETFILTER], [true])
 ])
 
+dnl Enable conntrack support (implies netfilter)
+AC_ARG_ENABLE([conntrack],
+	[AS_HELP_STRING(
+		[--enable-conntrack],
+		[enable conntrack support (implies netfilter)])
+	]
+)
+AM_CONDITIONAL([NL_CONNTRACK], [test "x$enable_conntrack" == "xyes"])
+AS_IF([test "x$enable_conntrack" == "xyes"],[
+	AM_CONDITIONAL([NL_NETFILTER], [true])
+])
+
 dnl Enable ifinfo support
 AC_ARG_ENABLE([ifinfo],
 	[AS_HELP_STRING(
@@ -86,6 +98,7 @@ AC_ARG_ENABLE([all],
 AS_IF([test "x$enable_all" == "xyes"],[
 	AM_CONDITIONAL([NL_IFINFO],    [true])
 	AM_CONDITIONAL([NL_IFADDR],    [true])
+	AM_CONDITIONAL([NL_CONNTRACK], [true])
 	AM_CONDITIONAL([NL_NFQUEUE],   [true])
 	AM_CONDITIONAL([NL_NETFILTER], [true])
 	AM_CONDITIONAL([NL_GENERIC],   [true])

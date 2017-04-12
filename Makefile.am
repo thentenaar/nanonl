@@ -23,6 +23,11 @@ inc_HEADERS += src/nl_nf.h
 libnanonl_la_SOURCES += src/nl_nf.c
 endif
 
+if NL_CONNTRACK
+inc_HEADERS += src/nl_nfct.h
+libnanonl_la_SOURCES += src/nl_nfct.c
+endif
+
 if NL_NFQUEUE
 inc_HEADERS += src/nl_nfqueue.h
 libnanonl_la_SOURCES += src/nl_nfqueue.c
