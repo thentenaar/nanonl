@@ -50,6 +50,17 @@
 	nl_get_attr((m), sizeof(struct ifaddrmsg), (t))
 
 /**
+ * \def nl_ifa_get_attrv(m, a)
+ * \param m Netlink message buffer
+ * \param a Array of \a struct nlattr *
+ *
+ * Convenience wrapper around nl_get_attrv().
+ */
+#define nl_ifa_get_attrv(m, a)\
+	nl_get_attrv((m), sizeof(struct ifaddrmsg), (a), \
+	             ((sizeof((a)) / sizeof(struct nlattr *)) - 1 ))
+
+/**
  * \def nl_ifa_get_addr(m, idx, family, scope)
  * \param m      Netlink message buffer
  * \param idx    Interface index (or 0 for all)

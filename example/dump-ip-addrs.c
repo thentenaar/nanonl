@@ -15,12 +15,14 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <linux/rtnetlink.h>
+
 #include "../src/nl.h"
 #include "../src/nl_ifaddr.h"
 
 static int fd = -1;
 static char buf[BUFSIZ];
 static char addrbuf[INET6_ADDRSTRLEN];
+static struct nlattr *attrs[IFA_MAX + 1];
 static struct nlmsghdr *m = (struct nlmsghdr *)(void *)buf;
 
 int main(void)
@@ -28,10 +30,8 @@ int main(void)
 	__u32 len;
 	ssize_t br;
 	struct nlmsghdr *e;
-	struct ifaddrmsg *ifa;
 	struct nlattr *nla;
 	const char *label;
-	const char *disp;
 	__u8 family = AF_INET;
 
 	memset(buf, 0, sizeof(buf));
@@ -61,19 +61,17 @@ read:
 			} else goto ret;
 		} else if (e->nlmsg_type != RTM_NEWADDR) continue;
 
-		/* Lookup the interface name */
-		label = NULL;
-		ifa = NLMSG_DATA(e);
-		if ((nla = nl_get_attr(e, sizeof(*ifa), IFA_LABEL)))
-			label = NLA_DATA(nla);
-
-		/* Now, print the address */
-		if ((nla = nl_get_attr(e, sizeof(*ifa), IFA_ADDRESS))) {
-			printf("%s has %s address: %s\n",
-			       label ? label : "<none>",
+		/* Print the address */
+		label = "<none>";
+		memset(attrs, 0, sizeof(attrs));
+		nl_ifa_get_attrv(e, attrs);
+		if (attrs[IFA_LABEL]) label = NLA_DATA(attrs[IFA_LABEL]);
+		if ((nla = attrs[IFA_ADDRESS])) {
+			inet_ntop(family, NLA_DATA(attrs[IFA_ADDRESS]),
+			          addrbuf, sizeof(addrbuf));
+			printf("%s has %s address: %s\n", label,
 			       (family == AF_INET) ? "v4": "v6",
-			       inet_ntop(ifa->ifa_family, NLA_DATA(nla),
-			                 addrbuf, sizeof(addrbuf)));
+			       addrbuf);
 		}
 	}
 	goto read;

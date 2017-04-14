@@ -42,6 +42,17 @@
 	nl_get_attr((m), sizeof(struct ifinfomsg), (t))
 
 /**
+ * \def nl_ifi_get_attrv(m, a)
+ * \param m Netlink message buffer
+ * \param a Array of \a struct nlattr *
+ *
+ * Convenience wrapper around nl_get_attrv().
+ */
+#define nl_ifi_get_attrv(m, a)\
+	nl_get_attrv((m), sizeof(struct ifinfomsg), (a), \
+	             ((sizeof((a)) / sizeof(struct nlattr *)) - 1))
+
+/**
  * \def nl_ifi_get(m, idx, family, scope)
  * \param m      Netlink message buffer
  * \param family Address family (AF_UNSPEC for all)

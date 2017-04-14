@@ -27,6 +27,17 @@
 	nl_get_attr((m), sizeof(struct nfgenmsg), (t))
 
 /**
+ * \def nl_nf_get_attrv(m, a)
+ * \param m Netlink message buffer
+ * \param a Array of \a struct nlattr *
+ *
+ * Convenience wrapper around nl_get_attrv().
+ */
+#define nl_nf_get_attrv(m, a)\
+	nl_get_attrv((m), sizeof(struct nfgenmsg), (a), \
+	             ((sizeof((a)) / sizeof(struct nlattr *)) - 1))
+
+/**
  * \brief Create a netlink_netfilter request.
  * \param[in] m       Netlink message buffer.
  * \param[in] pid     Destination netlink port.

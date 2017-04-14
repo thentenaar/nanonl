@@ -51,6 +51,6 @@ void nl_nfct_create(struct nlmsghdr *m, __u8 l3proto)
 void nl_nfct_update(struct nlmsghdr *m, __u8 l3proto)
 {
 	nl_nfct_create(m, l3proto);
-	m->nlmsg_flags |= NLM_F_EXCL;
+	m->nlmsg_flags = (__u16)(m->nlmsg_flags & ~NLM_F_CREATE);
 }
 

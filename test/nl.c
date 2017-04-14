@@ -125,6 +125,45 @@ START_TEST(nl_get_attr_extra_data)
 }
 END_TEST
 
+START_TEST(nl_get_attrv_no_attr)
+{
+	struct nlattr *attrs[3];
+	ck_assert(!nl_get_attrv(NULL, 0, attrs, 3));
+	ck_assert(!nl_get_attrv(m, 0, NULL, 3));
+	ck_assert(!nl_get_attrv(m, 0, attrs, 0));
+}
+END_TEST
+
+START_TEST(nl_get_attrv_one)
+{
+	struct nlattr *nla;
+	struct nlattr *attrs[3];
+
+	attrs[0] = attrs[2] = NULL;
+	nla = NLMSG_DATA(m);
+	nl_add_attr(m, 1, "test", 4);
+	nl_add_attr(m, 2, "abcd", 4);
+	ck_assert(nl_get_attrv(m, 0, attrs, 1) == 1);
+	ck_assert(attrs[1] == nla);
+	ck_assert(!attrs[2]);
+}
+END_TEST
+
+START_TEST(nl_get_attrv_many)
+{
+	struct nlattr *attrs[4];
+
+	attrs[0] = attrs[3] = NULL;
+	nl_add_attr(m, 1, "test", 4);
+	nl_add_attr(m, 2, "abcd", 4);
+	nl_add_attr(m, 4, "cdef", 4);
+	ck_assert(nl_get_attrv(m, 0, attrs, 3) == 2);
+	ck_assert(*(char *)NLA_DATA(attrs[1]) == 't');
+	ck_assert(*(char *)NLA_DATA(attrs[2]) == 'a');
+	ck_assert(!attrs[0] && !attrs[3]);
+}
+END_TEST
+
 START_TEST(nla_start_no_data)
 {
 	struct nlattr *nla;
@@ -224,6 +263,53 @@ START_TEST(nla_get_attr_works)
 }
 END_TEST
 
+START_TEST(nla_get_attrv_ignores_null)
+{
+	struct nlattr *nla;
+	struct nlattr *attrs[3];
+
+	nla = nla_start(m, 0xff);
+	ck_assert(!nla_get_attrv(NULL, attrs, 2));
+	ck_assert(!nla_get_attrv(nla, NULL, 2));
+	ck_assert(!nla_get_attrv(nla, attrs, 0));
+}
+END_TEST
+
+START_TEST(nla_get_attrv_ignores_non_nested)
+{
+	struct nlattr *nla;
+	struct nlattr *attrs[3];
+	nla = nla_start(m, 0x2bef);
+	nla->nla_type = (__u16)(nla->nla_type & ~NLA_F_NESTED);
+	nla_add_attr(nla, 2, "xxx", 3);
+	nla_end(m, nla);
+	ck_assert(!nla_get_attrv(nla, attrs, 2));
+}
+END_TEST
+
+START_TEST(nla_get_attrv_works)
+{
+	struct nlattr *nla;
+	struct nlattr *attrs[3];
+
+	nla = nla_start(m, 0xff);
+	nla_add_attr(nla, 1, "aaa", 4);
+	nla_add_attr(nla, 2, "bbbb", 5);
+	nla_end(m, nla);
+
+	attrs[0] = attrs[1] = attrs[2] = NULL;
+	ck_assert(nla_get_attrv(nla, attrs, 1) == 1);
+	ck_assert(attrs[1] && !attrs[0] && !attrs[2]);
+	ck_assert(*(char *)NLA_DATA(attrs[1]) == 'a');
+
+	attrs[0] = attrs[1] = attrs[2] = NULL;
+	ck_assert(nla_get_attrv(nla, attrs, 2) == 2);
+	ck_assert(*(char *)NLA_DATA(attrs[1]) == 'a');
+	ck_assert(*(char *)NLA_DATA(attrs[2]) == 'b');
+	ck_assert(!attrs[0]);
+}
+END_TEST
+
 Suite *nl_suite(void)
 {
 	Suite *s;
@@ -236,6 +322,7 @@ Suite *nl_suite(void)
 	tcase_add_test(t, nl_msg_works);
 	tcase_set_timeout(t, 1);
 	suite_add_tcase(s, t);
+
 	t = tcase_create("attribute construction");
 	tcase_add_checked_fixture(t, nla_setup, NULL);
 	tcase_add_test(t, nl_add_attr_no_data);
@@ -244,6 +331,7 @@ Suite *nl_suite(void)
 	tcase_add_test(t, nl_add_attr_append);
 	tcase_set_timeout(t, 1);
 	suite_add_tcase(s, t);
+
 	t = tcase_create("attribute lookup");
 	tcase_add_checked_fixture(t, nla_setup, NULL);
 	tcase_add_test(t, nl_get_attr_no_attr);
@@ -252,6 +340,15 @@ Suite *nl_suite(void)
 	tcase_add_test(t, nl_get_attr_extra_data);
 	tcase_set_timeout(t, 1);
 	suite_add_tcase(s, t);
+
+	t = tcase_create("attribute vector");
+	tcase_add_checked_fixture(t, nla_setup, NULL);
+	tcase_add_test(t, nl_get_attrv_no_attr);
+	tcase_add_test(t, nl_get_attrv_one);
+	tcase_add_test(t, nl_get_attrv_many);
+	tcase_set_timeout(t, 1);
+	suite_add_tcase(s, t);
+
 	t = tcase_create("nested attributes");
 	tcase_add_checked_fixture(t, nla_setup, NULL);
 	tcase_add_test(t, nla_start_no_data);
@@ -263,6 +360,14 @@ Suite *nl_suite(void)
 	tcase_add_test(t, nla_get_attr_ignores_null);
 	tcase_add_test(t, nla_get_attr_ignores_non_nested);
 	tcase_add_test(t, nla_get_attr_works);
+	tcase_set_timeout(t, 1);
+	suite_add_tcase(s, t);
+
+	t = tcase_create("nested attribute vector");
+	tcase_add_checked_fixture(t, nla_setup, NULL);
+	tcase_add_test(t, nla_get_attrv_ignores_null);
+	tcase_add_test(t, nla_get_attrv_ignores_non_nested);
+	tcase_add_test(t, nla_get_attrv_works);
 	tcase_set_timeout(t, 1);
 	suite_add_tcase(s, t);
 	return s;

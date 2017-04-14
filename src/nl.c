@@ -7,7 +7,6 @@
  */
 
 #include <stdio.h>
-
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
@@ -61,7 +60,7 @@ int nl_open(int protocol, __u32 port)
 /**
  * \brief Join or leave any number of multicast groups
  * \param[in] fd    Netlink fd
- * \param[in] join  non-zero to join, zero to leave
+ * \param[in] join  either NL_MULTICAST_JOIN or NL_MULTICAST_LEAVE
  * \param[in] group A list of groups, terminated by zero.
  * \return 0 on success, non-zero on failure (with \a errno set.)
  */
@@ -123,10 +122,7 @@ ssize_t nl_send(int fd, __u32 port, struct nlmsghdr *msg)
 	hdr.msg_control    = NULL;
 	hdr.msg_controllen = 0;
 	hdr.msg_flags      = 0;
-
-send:
-	if ((i = sendmsg(fd, &hdr, 0)) < 0 && errno == EINTR)
-		goto send;
+	i = sendmsg(fd, &hdr, 0);
 
 ret:
 	return i;
@@ -194,10 +190,9 @@ ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t len, __u32 *port)
 
 read:
 	/* Read the netlink header to get the message length */
-	if ((i = recvmsg(fd, &hdr, e)) <= 0) {
-		if (errno == EINTR) goto read;
+	if ((i = recvmsg(fd, &hdr, e)) <= 0)
 		goto err;
-	} else if (e & MSG_PEEK) {
+	else if (e & MSG_PEEK) {
 		e &= ~MSG_PEEK;
 		if (port) *port = sa.nl_pid;
 		goto read;
@@ -233,7 +228,7 @@ err:
  */
 ssize_t nl_transact(int fd, struct nlmsghdr *m, size_t len, __u32 *port)
 {
-	int flags;
+	int flags = -1;
 	ssize_t ret = -1;
 
 	if (!m || !len)
@@ -247,10 +242,8 @@ ssize_t nl_transact(int fd, struct nlmsghdr *m, size_t len, __u32 *port)
 	if ((size_t)nl_send(fd, port ? *port : 0, m) != m->nlmsg_len ||
 	    (ret = nl_recv(fd, m, len, port)) <= 0) goto err;
 
-	/* Restore fd flags */
-	if (fcntl(fd, F_SETFL, flags)) goto err;
-
 err:
+	if (flags != -1) fcntl(fd, F_SETFL, flags);
 	return ret;
 }
 
@@ -292,11 +285,12 @@ void nl_add_attr(struct nlmsghdr *m, __u16 type, const void *data,
 	len &= 0xffff;
 
 	if (data && len) {
-		attr->nla_len = (__u16)(attr->nla_len + NLA_ALIGN(len));
+		if (len < 4) memset(NLA_DATA(attr), 0, NLA_ALIGN(len));
 		memcpy(NLA_DATA(attr), data, len);
+		attr->nla_len = (__u16)NLA_ALIGN(NLA_HDRLEN + len);
 	}
 
-	m->nlmsg_len += NLMSG_ALIGN(attr->nla_len);
+	m->nlmsg_len = NLMSG_ALIGN(m->nlmsg_len + attr->nla_len);
 }
 
 /**
@@ -329,17 +323,18 @@ void nla_add_attr(struct nlattr *nla, __u16 type, const void *data,
 	struct nlattr *attr;
 
 	if (!nla) return;
-	attr = NLA_DATA(nla);
+	attr = (struct nlattr *)BYTE_OFF(nla, nla->nla_len);
 	attr->nla_type = type;
 	attr->nla_len  = NLA_HDRLEN;
 	len &= 0xffff;
 
 	if (data && len) {
-		attr->nla_len = (__u16)(nla->nla_len + NLA_ALIGN(len));
+		if (len < 4) memset(NLA_DATA(attr), 0, NLA_ALIGN(len));
 		memcpy(NLA_DATA(attr), data, len);
+		attr->nla_len = (__u16)NLA_ALIGN(NLA_HDRLEN + len);
 	}
 
-	nla->nla_len = (__u16)(nla->nla_len + NLA_ALIGN(attr->nla_len));
+	nla->nla_len = (__u16)NLA_ALIGN(nla->nla_len + attr->nla_len);
 }
 
 /**
@@ -374,15 +369,17 @@ void nla_end(struct nlmsghdr *m, const struct nlattr *nla)
 struct nlattr *nl_get_attr(struct nlmsghdr *m, size_t extra_len, __u16 type)
 {
 	void *attr;
+	size_t len;
 	struct nlattr *nla;
-	if (!m || !NLMSG_OK(m, m->nlmsg_len)) goto ret;
 
+	if (!m || !NLMSG_OK(m, m->nlmsg_len)) goto ret;
 	attr = BYTE_OFF(NLMSG_DATA(m), NLMSG_ALIGN((__u32)extra_len));
 	while ((char *)attr - (char *)m < m->nlmsg_len) {
 		nla = attr;
 		if ((nla->nla_type & NLA_TYPE_MASK) == type)
 			return nla;
-		attr = (char *)attr + NLA_ALIGN(nla->nla_len);
+		len = NLA_ALIGN(nla->nla_len ? nla->nla_len : NLA_HDRLEN);
+		attr = (char *)attr + len;
 	}
 
 ret:
@@ -399,6 +396,7 @@ struct nlattr *nla_get_attr(struct nlattr *nla, __u16 type)
 {
 	struct nlattr *a;
 	void *attr;
+	size_t len;
 
 	if (!nla || !(nla->nla_type & NLA_F_NESTED))
 		goto ret;
@@ -408,10 +406,121 @@ struct nlattr *nla_get_attr(struct nlattr *nla, __u16 type)
 		a = attr;
 		if ((a->nla_type & NLA_TYPE_MASK) == type)
 			return a;
-		attr = (char *)attr + NLA_ALIGN(a->nla_len);
+		len = NLA_ALIGN(a->nla_len ? a->nla_len : NLA_HDRLEN);
+		attr = (char *)attr + len;
 	}
 
 ret:
 	return NULL;
+}
+
+/**
+ * \brief Gather an array of netlink attributes from a message
+ * \param[in]     m         Netlink message buffer.
+ * \param[in]     extra_len Length of extra headers (if any.)
+ * \param[in,out] attrs     Array of NLA pointers.
+ * \param[in]     n         Number of elements in \a attrs.
+ * \return Number of NLAs found
+ *
+ * This function allows you to gather up to a given number of NLAs from
+ * a netlink message in one go. For each NLA found in \a m, the
+ * element in \a attrs corresponding to that NLA's type will be set
+ * to point to the NLA (assuming \a attrs is large enough.)
+ *
+ * This mimics the interface commonly used in the kernel code for parsing
+ * sets of NLAs.
+ *
+ * NOTE: Each attribute type will be in the range 0 < y <= X_MAX
+ * where X denotes a particular attribute enum (i.e. IFA_MAX for
+ * interface address attributes.) Attribute types larger than \a n
+ * will be ignored.
+ *
+ * \code{.c}
+ * struct nlmsghdr *m;
+ * struct nlattr *attrs[IFA_MAX + 1];
+ * char buf[INET6_ADDRSTRLEN];
+ *
+ * memset(attrs, 0, sizeof(attrs));
+ * if (!nl_get_attrv(m, sizeof(struct ifaddrmsg), attrs, IFA_MAX))
+ * 	nothing_found;
+ * if (attrs[IFA_LABEL] && attrs[IFA_ADDRESS])
+ * 	printf("Label: %s, Addr: %s\n",
+ * 	       (char *)attrs[IFA_ADDRESS].data,
+ * 	       inet_ntop(PF_INET, attrs[IFA_LABEL].data,
+ * 	       buf, sizeof(buf)));
+ * \endcode
+ */
+__u16 nl_get_attrv(struct nlmsghdr *m, size_t extra_len,
+                   struct nlattr *attrs[], __u16 n)
+{
+	void *attr;
+	struct nlattr *nla;
+	size_t len;
+	__u16 type, found = 0;
+
+	if (!attrs || !n || !m || !NLMSG_OK(m, m->nlmsg_len)) goto ret;
+	attr = BYTE_OFF(NLMSG_DATA(m), NLMSG_ALIGN((__u32)extra_len));
+	while ((char *)attr - (char *)m < m->nlmsg_len) {
+		nla = attr;
+		type = (__u16)(nla->nla_type & NLA_TYPE_MASK);
+		if (type > 0 && type <= n) {
+			attrs[type] = nla;
+			if (++found == n) break;
+		}
+
+		len = NLA_ALIGN(nla->nla_len ? nla->nla_len : NLA_HDRLEN);
+		attr = (char *)attr + len;
+	}
+
+ret:
+	return found;
+}
+
+/**
+ * \brief Gather an array of netlink attributes from a nested NLA
+ * \param[in]     nla   Nested NLA.
+ * \param[in,out] attrs Array of NLA pointers.
+ * \param[in]     n     Number of elements in \a attrs.
+ * \return Number of NLAs found
+ *
+ * This function allows you to gather up to a given number of NLAs from
+ * a nested NLA in one go. This is \a nl_get_attrv() but for nested NLAs.
+ *
+ * \code{.c}
+ * struct nlattr *nla;
+ * struct nlattr *attrs[CTA_IP_MAX + 1];
+ *
+ * memset(attrs, 0, sizeof(attrs));
+ * if (!nla_get_attrv(nla, attrs, CTA_IP_MAX))
+ * 	nothing_found;
+ * if (attrs[CTA_IP_V4_SRC] && attrs[CTA_IP_V4_DST])
+ * 	...;
+ * \endcode
+ */
+__u16 nla_get_attrv(struct nlattr *nla, struct nlattr *attrs[], __u16 n)
+{
+	struct nlattr *a;
+	void *attr;
+	size_t len;
+	__u16 type, found = 0;
+
+	if (!nla || !(nla->nla_type & NLA_F_NESTED) || !nla->nla_len)
+		goto ret;
+
+	attr = NLA_DATA(nla);
+	while ((char *)attr - (char *)nla < nla->nla_len) {
+		a = attr;
+		type = (__u16)(a->nla_type & NLA_TYPE_MASK);
+		if (type > 0 && type <= n) {
+			attrs[type] = a;
+			if (++found == n) break;
+		}
+
+		len = NLA_ALIGN(a->nla_len ? a->nla_len : NLA_HDRLEN);
+		attr = (char *)attr + len;
+	}
+
+ret:
+	return found;
 }
 

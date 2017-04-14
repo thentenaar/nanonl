@@ -14,6 +14,9 @@
 #include <sys/socket.h>
 #include <linux/netlink.h>
 
+#define NL_MULTICAST_JOIN  1 /**< Join a multicast group */
+#define NL_MULTICAST_LEAVE 0 /**< Leave a multicast group */
+
 /* Re-define these to avoid implicit int promotion */
 #undef NLA_ALIGN
 #undef NLA_HDRLEN
@@ -61,7 +64,7 @@ int nl_open(int protocol, __u32 port);
 /**
  * \brief Join or leave any number of multicast groups
  * \param[in] fd    Netlink fd
- * \param[in] join  non-zero to join, zero to leave
+ * \param[in] join  either NL_MULTICAST_JOIN or NL_MULTICAST_LEAVE
  * \param[in] group A list of groups, terminated by zero.
  * \return 0 on success, non-zero on failure (-1 with \a errno set.)
  */
@@ -188,6 +191,68 @@ struct nlattr *nl_get_attr(struct nlmsghdr *m, size_t extra_len, __u16 type);
  * \return Pointer to the requested attribute (if found, NULL otherwise.)
  */
 struct nlattr *nla_get_attr(struct nlattr *nla, __u16 type);
+
+/**
+ * \brief Gather an array of netlink attributes from a message
+ * \param[in]     m         Netlink message buffer.
+ * \param[in]     extra_len Length of extra headers (if any.)
+ * \param[in,out] attrs     Array of NLA pointers.
+ * \param[in]     n         Number of elements in \a attrs.
+ * \return Number of NLAs found
+ *
+ * This function allows you to gather up to a given number of NLAs from
+ * a netlink message in one go. For each NLA found in \a m, the
+ * element in \a attrs corresponding to that NLA's type will be set
+ * to point to the NLA (assuming \a attrs is large enough.)
+ *
+ * This mimics the interface commonly used in the kernel code for parsing
+ * sets of NLAs.
+ *
+ * NOTE: Each attribute type will be in the range 0 < y <= X_MAX
+ * where X denotes a particular attribute enum (i.e. IFA_MAX for
+ * interface address attributes.) Attribute types larger than \a n
+ * will be ignored.
+ *
+ * \code{.c}
+ * struct nlmsghdr *m;
+ * struct nlattr *attrs[IFA_MAX + 1];
+ * char buf[INET6_ADDRSTRLEN];
+ *
+ * memset(attrs, 0, sizeof(attrs));
+ * if (!nl_get_attrv(m, sizeof(struct ifaddrmsg), attrs, IFA_MAX))
+ * 	nothing_found;
+ * if (attrs[IFA_LABEL] && attrs[IFA_ADDRESS])
+ * 	printf("Label: %s, Addr: %s\n",
+ * 	       (char *)attrs[IFA_ADDRESS].data,
+ * 	       inet_ntop(PF_INET, attrs[IFA_LABEL].data,
+ * 	       buf, sizeof(buf)));
+ * \endcode
+ */
+__u16 nl_get_attrv(struct nlmsghdr *m, size_t extra_len,
+                   struct nlattr *attrs[], __u16 n);
+
+/**
+ * \brief Gather an array of netlink attributes from a nested NLA
+ * \param[in]     nla   Nested NLA.
+ * \param[in,out] attrs Array of NLA pointers.
+ * \param[in]     n     Number of elements in \a attrs.
+ * \return Number of NLAs found
+ *
+ * This function allows you to gather up to a given number of NLAs from
+ * a nested NLA in one go. This is \a nl_get_attrv() but for nested NLAs.
+ *
+ * \code{.c}
+ * struct nlattr *nla;
+ * struct nlattr *attrs[CTA_IP_MAX + 1];
+ *
+ * memset(attrs, 0, sizeof(attrs));
+ * if (!nla_get_attrv(nla, attrs, CTA_IP_MAX))
+ * 	nothing_found;
+ * if (attrs[CTA_IP_V4_SRC] && attrs[CTA_IP_V4_DST])
+ * 	...;
+ * \endcode
+ */
+__u16 nla_get_attrv(struct nlattr *nla, struct nlattr *attrs[], __u16 n);
 
 #endif /* NL_H */
 

@@ -22,7 +22,7 @@ static struct nlmsghdr *m = (struct nlmsghdr *)(void *)buf;
 
 int main(int argc, const char *argv[])
 {
-	__u32 pid;
+	__u32 pid = 0;
 	size_t len = sizeof(buf);
 	struct nlattr *nla;
 
