@@ -190,8 +190,9 @@ ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t len, __u32 *port)
 
 read:
 	/* Read the netlink header to get the message length */
-	if ((i = recvmsg(fd, &hdr, e)) <= 0)
+	if ((i = recvmsg(fd, &hdr, e)) < 0)
 		goto err;
+	if (!i && e & MSG_PEEK) goto ret;
 	else if (e & MSG_PEEK) {
 		e &= ~MSG_PEEK;
 		if (port) *port = sa.nl_pid;
@@ -212,6 +213,7 @@ read:
 		}
 	}
 
+ret:
 	return i;
 
 err:
