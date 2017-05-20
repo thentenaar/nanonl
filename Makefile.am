@@ -43,6 +43,11 @@ inc_HEADERS += src/nl_ifaddr.h
 libnanonl_la_SOURCES += src/nl_ifaddr.c
 endif
 
+if NL_ND
+inc_HEADERS += src/nl_nd.h
+libnanonl_la_SOURCES += src/nl_nd.c
+endif
+
 examples: 
 	@$(MAKE) -C example all
 

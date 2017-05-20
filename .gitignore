@@ -27,4 +27,6 @@ example/dump-ip-addrs
 example/genl-find-family
 example/monitor-addr-change
 example/nfqueue
+example/dump-neighbors
+example/monitor-neighbors
 

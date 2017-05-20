@@ -82,7 +82,7 @@ void nl_nfqueue_cfg_cmd(struct nlmsghdr *m, __u8 cmd, __u16 pf, __u16 qn);
  *
  * NOTE: Getting the conntrack info requires the \a ip_conntrack_netlink
  * module to be lodaed or compiled in (CONFIG_NF_CT_NETLINK), and is only
- * available in Linux 3.6 or higher.
+ * available on Linux 3.6 or higher.
  */
 void nl_nfqueue_bind(struct nlmsghdr *m, __u16 pf, __u16 queue_num,
                      __u8 cmode, __u32 crange, __u32 maxlen, int want_ct);

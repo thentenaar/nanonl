@@ -88,6 +88,15 @@ AC_ARG_ENABLE([ifaddr],
 )
 AM_CONDITIONAL([NL_IFADDR], [test "x$enable_ifaddr" == "xyes"])
 
+dnl Enable nd support
+AC_ARG_ENABLE([nd],
+	[AS_HELP_STRING(
+		[--enable-nd],
+		[enable neighbor discovery support])
+	]
+)
+AM_CONDITIONAL([NL_ND], [test "x$enable_nd" == "xyes"])
+
 dnl Enable support for everything
 AC_ARG_ENABLE([all],
 	[AS_HELP_STRING(
@@ -96,6 +105,7 @@ AC_ARG_ENABLE([all],
 	]
 )
 AS_IF([test "x$enable_all" == "xyes"],[
+	AM_CONDITIONAL([NL_ND],        [true])
 	AM_CONDITIONAL([NL_IFINFO],    [true])
 	AM_CONDITIONAL([NL_IFADDR],    [true])
 	AM_CONDITIONAL([NL_CONNTRACK], [true])
