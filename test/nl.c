@@ -275,18 +275,6 @@ START_TEST(nla_get_attrv_ignores_null)
 }
 END_TEST
 
-START_TEST(nla_get_attrv_ignores_non_nested)
-{
-	struct nlattr *nla;
-	struct nlattr *attrs[3];
-	nla = nla_start(m, 0x2bef);
-	nla->nla_type = (__u16)(nla->nla_type & ~NLA_F_NESTED);
-	nla_add_attr(nla, 2, "xxx", 3);
-	nla_end(m, nla);
-	ck_assert(!nla_get_attrv(nla, attrs, 2));
-}
-END_TEST
-
 START_TEST(nla_get_attrv_works)
 {
 	struct nlattr *nla;
@@ -366,7 +354,6 @@ Suite *nl_suite(void)
 	t = tcase_create("nested attribute vector");
 	tcase_add_checked_fixture(t, nla_setup, NULL);
 	tcase_add_test(t, nla_get_attrv_ignores_null);
-	tcase_add_test(t, nla_get_attrv_ignores_non_nested);
 	tcase_add_test(t, nla_get_attrv_works);
 	tcase_set_timeout(t, 1);
 	suite_add_tcase(s, t);

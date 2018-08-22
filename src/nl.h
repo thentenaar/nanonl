@@ -44,6 +44,27 @@
 #define NLA_DATA(X) BYTE_OFF((X), (size_t)(NLA_HDRLEN))
 
 /**
+ * \brief Iterate over each NLA
+ * \param[in] n   NLA iterator
+ * \param[in] nla First NLA to iterate
+ *
+ * This macro expands to a for loop.
+ *
+ * \code{.c}
+ * struct nlattr *n, *nla;
+ *
+ * nla_each(n, nla) {
+ * 	if (nla_get_attr(n, CTRL_ATTR_MCAST_GRP_NAME))
+ * 		continue;
+ * }
+ * \endcode
+ */
+#define nla_each(n, nla) \
+	for (n = NLA_DATA((nla)) ; \
+	     n && ((char *)n - (char *)(nla)) < (nla)->nla_len ; \
+	     n = BYTE_OFF(n, NLA_ALIGN(n->nla_len ? n->nla_len : NLA_HDRLEN)))
+
+/**
  * \brief Initialize a netlink request.
  * \param[in] m     Netlink message buffer.
  * \param[in] type  Netlink message type.

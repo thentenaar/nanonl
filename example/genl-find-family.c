@@ -24,7 +24,7 @@ int main(int argc, const char *argv[])
 {
 	__u32 pid = 0;
 	size_t len = sizeof(buf);
-	struct nlattr *nla;
+	struct nlattr *nla, *n, *grp_attrs[CTRL_ATTR_MCAST_GRP_MAX + 1];
 
 	if (argc > 1) family = argv[1];
 	memset(buf, 0, sizeof(buf));
@@ -52,6 +52,20 @@ int main(int argc, const char *argv[])
 		goto ret;
 	}
 	printf("'%s' has family ID: %u\n", family, *(__u16 *)NLA_DATA(nla));
+
+	if (!(nla = nl_gen_get_attr(m, CTRL_ATTR_MCAST_GROUPS)))
+		goto ret;
+
+	puts("Multicast Groups:");
+	nla_each(n, nla) {
+		if (!nla_get_attrv(n, grp_attrs, CTRL_ATTR_MCAST_GRP_MAX))
+			continue;
+		if (!grp_attrs[CTRL_ATTR_MCAST_GRP_NAME])
+			continue;
+		printf("\t%s (ID: %u)\n",
+		       (const char *)NLA_DATA(grp_attrs[CTRL_ATTR_MCAST_GRP_NAME]),
+		       *(__u16 *)NLA_DATA(grp_attrs[CTRL_ATTR_MCAST_GRP_ID]));
+	}
 
 ret:
 	if (fd >= 0) close(fd);

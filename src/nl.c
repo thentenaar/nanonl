@@ -506,7 +506,7 @@ __u16 nla_get_attrv(struct nlattr *nla, struct nlattr *attrs[], __u16 n)
 	size_t len;
 	__u16 type, found = 0;
 
-	if (!nla || !(nla->nla_type & NLA_F_NESTED) || !nla->nla_len)
+	if (!nla || !nla->nla_len)
 		goto ret;
 
 	attr = NLA_DATA(nla);
