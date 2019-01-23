@@ -227,6 +227,9 @@ err:
  * \param[in,out] len  Length (in bytes) of \a m.
  * \param[in,out] port Destination port ID (the source port is returned)
  * \return number of bytes read on success, < 0 on error.
+ *
+ * This is a convenience method for the typical case of sending a message
+ * and expecting a single response, using blocking I/O.
  */
 ssize_t nl_transact(int fd, struct nlmsghdr *m, size_t len, __u32 *port)
 {
@@ -376,7 +379,7 @@ struct nlattr *nl_get_attr(struct nlmsghdr *m, size_t extra_len, __u16 type)
 
 	if (!m || !NLMSG_OK(m, m->nlmsg_len)) goto ret;
 	attr = BYTE_OFF(NLMSG_DATA(m), NLMSG_ALIGN((__u32)extra_len));
-	while ((char *)attr - (char *)m < m->nlmsg_len) {
+	while ((size_t)((char *)attr - (char *)m) < m->nlmsg_len) {
 		nla = attr;
 		if ((nla->nla_type & NLA_TYPE_MASK) == type)
 			return nla;
@@ -462,7 +465,7 @@ __u16 nl_get_attrv(struct nlmsghdr *m, size_t extra_len,
 
 	if (!attrs || !n || !m || !NLMSG_OK(m, m->nlmsg_len)) goto ret;
 	attr = BYTE_OFF(NLMSG_DATA(m), NLMSG_ALIGN((__u32)extra_len));
-	while ((char *)attr - (char *)m < m->nlmsg_len) {
+	while ((size_t)((char *)attr - (char *)m) < m->nlmsg_len) {
 		nla = attr;
 		type = (__u16)(nla->nla_type & NLA_TYPE_MASK);
 		if (type > 0 && type <= n) {

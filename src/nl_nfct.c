@@ -10,7 +10,6 @@
 #include <string.h>
 #include <errno.h>
 #include <arpa/inet.h>
-#include <linux/netfilter/nfnetlink_conntrack.h>
 
 #include "nl.h"
 #include "nl_nfct.h"

@@ -134,8 +134,8 @@ ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t len, __u32 *port);
  * \param[in,out] port Destination port ID (the source port is returned)
  * \return number of bytes read on success, < 0 on error.
  *
- * This is a convenience method for the typical case of using a blocking
- * socket to communicate with netlink.
+ * This is a convenience method for the typical case of sending a message
+ * and expecting a single response, using blocking I/O.
  */
 ssize_t nl_transact(int fd, struct nlmsghdr *m, size_t len, __u32 *port);
 

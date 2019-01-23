@@ -10,10 +10,17 @@
 #ifndef NL_NFQUEUE_H
 #define NL_NFQUEUE_H
 
+/* We don't need the kernel's version of in.h */
+#ifndef _LINUX_IN_H
+#define _LINUX_IN_H
+#define _LINUX_IN6_H
+#endif
+
 #include <sys/types.h>
 #include <linux/version.h>
 #include <linux/netlink.h>
 #include <linux/netfilter.h>
+#include <linux/netfilter/nfnetlink_conntrack.h>
 #include <linux/netfilter/nfnetlink_queue.h>
 
 #include "nl_nf.h"

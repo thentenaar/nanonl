@@ -9,8 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include <linux/version.h>
-#include <linux/netfilter/nfnetlink_conntrack.h>
 
 #include "nl.h"
 #include "nl_nfqueue.h"
