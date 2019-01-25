@@ -115,6 +115,7 @@ AS_IF([test "x$enable_all" == "xyes"],[
 ])
 
 dnl Set-up CFLAGS
+LIBS=
 CFLAGS="$CFLAGS -ansi"
 AX_STRICT_CFLAGS
 
