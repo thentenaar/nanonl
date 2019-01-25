@@ -6,7 +6,7 @@ tests_LDADD    = -lcheck
 tests_SOURCES  = test/gen.c test/nfqueue.c test/nl.c test/test.c
 
 check-local: tests
-	@./tests
+	@$(QEMU) ./tests
 endif
 
 lib_LTLIBRARIES = libnanonl.la
