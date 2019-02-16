@@ -39,11 +39,24 @@
  * \param[in] m   Netlink message buffer
  * \param[in] l3p Layer 3 protocol (NFPROTO_*)
  *
- * Note: At least one tuple (or CT_MARK and CT_MARK_MASK) must be added
- * to the message in order for the kernel to lookup the conntrack entry.
+ * Note: At least one tuple (CTA_TUPLE_ORIGIN and/or CTA_TUPLE_REPLY)
+ * must be added to the message in order for the kernel to lookup the
+ * conntrack entry.
  */
 #define nl_nfct_get(m, l3p) \
 	nl_nfct_request((m), 0, IPCTNL_MSG_CT_GET, (l3p))
+
+/**
+ * \brief Get a conntrack entry, zeroing the counters
+ * \param[in] m   Netlink message buffer
+ * \param[in] l3p Layer 3 protocol (NFPROTO_*)
+ *
+ * Note: At least one tuple (CTA_TUPLE_ORIGIN and/or CTA_TUPLE_REPLY)
+ * must be added to the message in order for the kernel to lookup the
+ * conntrack entry.
+ */
+#define nl_nfct_get_ctrzero(m, l3p) \
+	nl_nfct_request((m), 0, IPCTNL_MSG_CT_GET_CTRZERO, (l3p))
 
 /**
  * \brief Flush one/all conntrack entries
@@ -63,8 +76,12 @@
  * \brief Request a dump of all conntrack entries
  * \param[in] m       Netlink message buffer
  * \param[in] l3proto Layer 3 protocol (NFPROTO_*)
+ * \param[in] ctrzero If non-zero, zero the counters
+ *
+ * Note: CTA_MARK and CTA_MARK_MASK may be added to filter the conntrack
+ * entries by mark.
  */
-void nl_nfct_dump(struct nlmsghdr *m, __u8 l3proto);
+void nl_nfct_dump(struct nlmsghdr *m, __u8 l3proto, int ctrzero);
 
 /**
  * \brief Create a new conntrack entry

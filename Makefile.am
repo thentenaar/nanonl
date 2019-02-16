@@ -2,6 +2,7 @@ incdir=$(includedir)/nanonl
 
 if HAVE_CHECK
 check_PROGRAMS = tests
+test_CFLAGS    = -ansi
 tests_LDADD    = -lcheck
 tests_SOURCES  = test/gen.c test/nfqueue.c test/nl.c test/test.c
 
@@ -11,6 +12,7 @@ endif
 
 lib_LTLIBRARIES = libnanonl.la
 inc_HEADERS = src/nl.h
+libnanonl_la_CFLAGS = -ansi
 libnanonl_la_SOURCES = src/nl.c
 
 if NL_GENERIC

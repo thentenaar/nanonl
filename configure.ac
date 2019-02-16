@@ -116,7 +116,7 @@ AS_IF([test "x$enable_all" == "xyes"],[
 
 dnl Set-up CFLAGS
 LIBS=
-CFLAGS="$CFLAGS -ansi"
+#CFLAGS="$CFLAGS -ansi"
 AX_STRICT_CFLAGS
 
 AC_CONFIG_FILES([Makefile example/Makefile])

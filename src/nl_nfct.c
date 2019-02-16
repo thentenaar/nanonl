@@ -18,10 +18,15 @@
  * \brief Request a dump of all conntrack entries
  * \param[in] m       Netlink message buffer
  * \param[in] l3proto Layer 3 protocol (NFPROTO_*)
+ * \param[in] ctrzero If non-zero, zero the counters
+ *
+ * Note: CTA_MARK and CTA_MARK_MASK may be added to filter the conntrack
+ * entries by mark.
  */
-void nl_nfct_dump(struct nlmsghdr *m, __u8 l3proto)
+void nl_nfct_dump(struct nlmsghdr *m, __u8 l3proto, int ctrzero)
 {
-	nl_nfct_get(m, l3proto);
+	if (ctrzero) nl_nfct_get_ctrzero(m, l3proto);
+	else         nl_nfct_get(m, l3proto);
 	m->nlmsg_flags |= NLM_F_DUMP;
 }
 
