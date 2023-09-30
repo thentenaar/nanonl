@@ -10,12 +10,6 @@
 #ifndef NL_NFQUEUE_H
 #define NL_NFQUEUE_H
 
-/* We don't need the kernel's version of in.h */
-#ifndef _LINUX_IN_H
-#define _LINUX_IN_H
-#define _LINUX_IN6_H
-#endif
-
 #include <sys/types.h>
 #include <linux/version.h>
 #include <linux/netlink.h>
@@ -83,7 +77,7 @@ void nl_nfqueue_cfg_cmd(struct nlmsghdr *m, __u8 cmd, __u16 pf, __u16 qn);
  * \param[in] pf        Protocol family (i.e. PF_INET).
  * \param[in] queue_num queue number (as given to iptables.)
  * \param[in] cmode     Metadata only, or the whole packet (NFQNL_COPY_*)
- * \param[in] cange     Amount of packet data to copy (in bytes.)
+ * \param[in] crange    Amount of packet data to copy (in bytes.)
  * \param[in] maxlen    If non-zero, the maximum queue length (in bytes.)
  * \param[in] want_ct   If non-zero, have the conntrack info sent also.
  *

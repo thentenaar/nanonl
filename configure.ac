@@ -4,7 +4,7 @@ dnl
 dnl This code is Licensed under the Simplified BSD License.
 dnl See the LICENSE file for details.
 dnl
-AC_PREREQ([2.63])
+AC_PREREQ([2.71])
 AC_INIT([nanonl], [1.0], [http://github.com/thentenaar/nanonl])
 AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_AUX_DIR([.])
@@ -15,9 +15,7 @@ AC_LANG([C])
 
 dnl Check for the C compiler, etc.
 AC_PROG_CC
-AC_PROG_LIBTOOL
-AC_HEADER_STDC
-AC_CHECK_HEADERS([errno.h linux/netlink.h])
+AC_CHECK_HEADERS([errno.h linux/netlink.h netinet/in.h])
 
 dnl Check the host system type, and compiler characteristics
 AC_CANONICAL_HOST
@@ -26,6 +24,9 @@ AC_TYPE_SIZE_T
 
 dnl Check for check
 AX_CHECK_DEP([check], [check.h], [check], [srunner_run_all], [nonfatal])
+AS_IF([test "x$have_check" != "xyes"],[
+	AX_CHECK_DEP([check], [check.h], [check], [suite_create], [nonfatal], [-lsubunit -lm])
+])
 AM_CONDITIONAL([HAVE_CHECK], [test "x$have_check" == "xyes"])
 
 dnl Enable netlink_generic support

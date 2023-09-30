@@ -9,6 +9,11 @@ dnl Clang, and adds supoprted options to CFLAGS. -Werror doesn't
 dnl get added here, simply because having -Werror and -Wstrict-prototypes
 dnl will cause compilations from autoconf to fail.
 dnl
+dnl COVERAGE
+dnl
+dnl This macro exports ax_cc_gcov_command as the proper gcov command
+dnl to invoke (i.e. llvm-cov gcov on clang.)
+dnl
 
 AC_DEFUN([AX_STRICT_CFLAGS],[
 	AX_REQUIRE_DEFINED([AX_APPEND_COMPILE_FLAGS])
@@ -21,6 +26,7 @@ AC_DEFUN([AX_STRICT_CFLAGS],[
 	                      [ax_cc_clang="no"])
 
 	AS_IF([test "$ax_cc_clang" == "yes"],[
+		ax_cc_gcov_command="llvm-cov gcov"
 		AX_APPEND_COMPILE_FLAGS([ dnl
 			-pedantic dnl
 			-Weverything dnl
@@ -29,9 +35,14 @@ AC_DEFUN([AX_STRICT_CFLAGS],[
 			-Wno-missing-variable-declarations dnl
 			-Wno-disabled-macro-expansion dnl
 			-Wno-format-nonliteral dnl
+			-Wno-long-long dnl
+			-Wno-format dnl
+			-Wno-extra-semi-stmt dnl
+			-Wno-documentation dnl
 			-Qunused-arguments dnl
 		])
 	],[	dnl Assume GCC
+		ax_cc_gcov_command="gcov"
 		AX_APPEND_COMPILE_FLAGS([ dnl
 			-pedantic dnl
 			-Wall dnl
@@ -58,5 +69,6 @@ AC_DEFUN([AX_STRICT_CFLAGS],[
 		AX_APPEND_COMPILE_FLAGS([-Wc90-c99-compat])
 	])
 
+	AC_SUBST([ax_cc_gcov_command])
 	AC_LANG_POP([C])
 ]) dnl AX_STRICT_CFLAGS

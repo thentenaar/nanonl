@@ -10,12 +10,6 @@
 #ifndef NL_NFCT_H
 #define NL_NFCT_H
 
-/* We don't need the kernel's version of in.h */
-#ifndef _LINUX_IN_H
-#define _LINUX_IN_H
-#define _LINUX_IN6_H
-#endif
-
 #include <sys/types.h>
 #include <linux/netlink.h>
 #include <linux/netfilter.h>

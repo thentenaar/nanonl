@@ -4,15 +4,15 @@ dnl AX_CHECK_DEP - Check for a dependant library
 dnl
 dnl USAGE
 dnl
-dnl AX_CHECK_DEP(dep, header, library, function, nonfatal)
+dnl AX_CHECK_DEP(dep, header, library, function, nonfatal, otherlibs)
 dnl
 dnl PARAMETERS
 dnl
-dnl dep      - Name of the dependency
-dnl header   - Header file to look for
-dnl library  - Library to look for
-dnl function - Function to look for within the library
-dnl nonfatal - If set, don't abort if this dep is missing
+dnl dep       - Name of the dependency
+dnl header    - Header file to look for
+dnl library   - Library to look for
+dnl function  - Function to look for within the library
+dnl nonfatal  - If set, don't abort if this dep is missing
 dnl otherlibs - Other needed libraries
 dnl
 dnl DESCRIPTION
@@ -68,6 +68,7 @@ AC_DEFUN([AX_CHECK_DEP],[
 				  [AC_MSG_FAILURE([DEP not found.])
 			])
 		],[
+			LIBS_[]DEP[]="$LIBS$6"
 			AS_IF([test "x$with_[]DEP" != "x$prefix" ],[
 				AS_IF([test "x$RPATHS" != "x" ], [
 					RPATH="$RPATH:$with_[]DEP[/lib]"
@@ -78,6 +79,7 @@ AC_DEFUN([AX_CHECK_DEP],[
 		])
 	])
 
+	AC_SUBST([LIBS_]DEP[])
 	AC_SUBST([have_]DEP[])
 	popdef([DEP])
 ]) dnl AX_CHECK_DEP

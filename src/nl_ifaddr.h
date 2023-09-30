@@ -112,7 +112,7 @@
  * \param[in] prefix_len Prefix length
  * \param[in] flags      Request flags (IFA_F_*)
  * \param[in] scope      Address scope (RT_SCOPE_*)
- * \parma[in] ifindex    Interface index
+ * \param[in] ifindex    Interface index
  * \relates nl_request
  */
 void nl_ifa_request(struct nlmsghdr *m, __u32 pid, __u8 type, __u8 family,

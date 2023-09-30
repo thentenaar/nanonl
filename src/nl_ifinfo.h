@@ -114,7 +114,7 @@ void nl_ifi_del_by_name(struct nlmsghdr *m, const char *name);
  * \param[in] type    One of: RTM_GETLINK, RTM_NEWLINK, RTM_DELLINK
  * \param[in] family  Address family (AF_INET[6])
  * \param[in] devtype Device type (i.e. ARPHRD_ETHER)
- * \parma[in] ifindex Interface index
+ * \param[in] ifindex Interface index
  * \param[in] flags   Interface flags (IFF_*)
  * \relates nl_request
  */

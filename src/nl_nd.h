@@ -79,7 +79,7 @@
  * \param[in] pid     Destination netlink port.
  * \param[in] family  Address family (AF_INET[6]).
  * \param[in] type    Message Type (i.e. RTM_GETNEIGH).
- * \parma[in] ifindex Interface index.
+ * \param[in] ifindex Interface index.
  * \param[in] state   Cache entry state (NUD_*).
  * \param[in] flags   Cache entry flags (NTF_*).
  * \relates nl_request
