@@ -5,13 +5,11 @@
 #include "gen.h"
 #include "../src/nl_gen.c"
 
-/* 8k is the maximum netlink packet size (from nl.c) */
-extern char buf[8192];
-static struct nlmsghdr *m = (struct nlmsghdr *)(void *)buf;
+extern struct nlmsghdr *m;
 
 static void setup(void)
 {
-	memset(buf, 0, sizeof(buf));
+	memset(m, 0, sizeof *m);
 }
 
 START_TEST(gen_find_family_invalid)

@@ -1,14 +1,12 @@
 /**
  * nanonl: Netlink Neighbor Discovery Functions
  *
- * Copyright (C) 2015 - 2017 Tim Hentenaar.
+ * Copyright (C) 2015 - 2025 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.
  * See the LICENSE file for details.
  */
 
-#include <stdlib.h>
-#include <string.h>
 #include <arpa/inet.h>
 
 #include "nl.h"
@@ -28,9 +26,9 @@
 void nl_nd_request(struct nlmsghdr *m, __u32 pid, __u8 family, __u8 type,
                    __s32 ifindex, __u8 state, __u8 flags)
 {
-	struct ndmsg *nd = BYTE_OFF(m, sizeof(*m));
+	struct ndmsg *nd = BYTE_OFF(m, sizeof *m);
 	if (!m) return;
-	nl_request(m, type, pid, sizeof(*nd));
+	nl_request(m, type, pid, sizeof *nd);
 	nd->ndm_family  = family;
 	nd->ndm_ifindex = ifindex;
 	nd->ndm_state   = state;

@@ -1,13 +1,11 @@
 /**
  * nanonl: Netlink Interface Address Functions
- * Copyright (C) 2015 - 2017 Tim Hentenaar.
+ * Copyright (C) 2015 - 2025 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.
  * See the LICENSE file for details.
  */
 
-#include <stdlib.h>
-#include <string.h>
 #include <arpa/inet.h>
 
 #include "nl.h"
@@ -28,9 +26,9 @@
 void nl_ifa_request(struct nlmsghdr *m, __u32 pid, __u8 type, __u8 family,
                     __u8 prefix_len, __u8 flags, __u8 scope, int ifindex)
 {
-	struct ifaddrmsg *ifa = BYTE_OFF(m, sizeof(*m));
+	struct ifaddrmsg *ifa = BYTE_OFF(m, sizeof *m);
 	if (!m) return;
-	nl_request(m, type, pid, sizeof(*ifa));
+	nl_request(m, type, pid, sizeof *ifa);
 	ifa->ifa_family    = family;
 	ifa->ifa_prefixlen = prefix_len;
 	ifa->ifa_flags     = flags;

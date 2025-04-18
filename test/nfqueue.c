@@ -11,12 +11,12 @@
 	((NFNL_SUBSYS_QUEUE << 8) | NFQNL_MSG_CONFIG)
 
 /* 8k is the maximum netlink packet size (from nl.c) */
-extern char buf[8192];
-static struct nlmsghdr *m = (struct nlmsghdr *)(void *)buf;
+extern char buf[NLMSG_GOODSIZE];
+extern struct nlmsghdr *m;
 
 static void setup(void)
 {
-	memset(buf, 0, sizeof(buf));
+	memset(buf, 0, NLMSG_GOODSIZE);
 }
 
 START_TEST(nfqueue_cmd_ignores_null)

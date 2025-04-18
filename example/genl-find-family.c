@@ -1,6 +1,6 @@
 /**
  * nanonl: genl-find-family: simple NETLINK_GENERIC example
- * Copyright (C) 2015 - 2017 Tim Hentenaar.
+ * Copyright (C) 2015 - 2025 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.
  * See the LICENSE file for details.
@@ -17,17 +17,17 @@
 
 static int fd = -1;
 const char *family = "nlctrl";
-static char buf[8192];
+static char buf[NLMSG_GOODSIZE];
 static struct nlmsghdr *m = (struct nlmsghdr *)(void *)buf;
 
 int main(int argc, const char *argv[])
 {
 	__u32 pid = 0;
-	size_t len = sizeof(buf);
+	size_t len = sizeof buf;
 	struct nlattr *nla, *n, *grp_attrs[CTRL_ATTR_MCAST_GRP_MAX + 1];
 
 	if (argc > 1) family = argv[1];
-	memset(buf, 0, sizeof(buf));
+	memset(buf, 0, sizeof buf);
 	if ((fd = nl_open(NETLINK_GENERIC, (__u32)getpid())) < 0) {
 		perror("Unable to open netlink socket");
 		goto ret;
@@ -51,8 +51,8 @@ int main(int argc, const char *argv[])
 		fputs("The response is missing the family ID\n", stderr);
 		goto ret;
 	}
-	printf("'%s' has family ID: %u\n", family, *(__u16 *)NLA_DATA(nla));
 
+	printf("'%s' has family ID: %u\n", family, *(__u16 *)NLA_DATA(nla));
 	if (!(nla = nl_gen_get_attr(m, CTRL_ATTR_MCAST_GROUPS)))
 		goto ret;
 

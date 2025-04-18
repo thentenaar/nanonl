@@ -1,10 +1,10 @@
 dnl nanonl: Netlink helper library
-dnl Copyright (C) 2015 - 2017 Tim Hentenaar.
+dnl Copyright (C) 2015 - 2025 Tim Hentenaar.
 dnl
 dnl This code is Licensed under the Simplified BSD License.
 dnl See the LICENSE file for details.
 dnl
-AC_PREREQ([2.71])
+AC_PREREQ([2.72])
 AC_INIT([nanonl], [1.0], [http://github.com/thentenaar/nanonl])
 AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_AUX_DIR([.])
@@ -117,7 +117,6 @@ AS_IF([test "x$enable_all" == "xyes"],[
 
 dnl Set-up CFLAGS
 LIBS=
-#CFLAGS="$CFLAGS -ansi"
 AX_STRICT_CFLAGS
 
 AC_CONFIG_FILES([Makefile example/Makefile])

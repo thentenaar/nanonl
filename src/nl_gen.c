@@ -1,6 +1,6 @@
 /**
  * nanonl: Netlink Generic Functions
- * Copyright (C) 2015 - 2017 Tim Hentenaar.
+ * Copyright (C) 2015 - 2025 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.
  * See the LICENSE file for details.
@@ -20,7 +20,6 @@
  * \param[in] family  Netlink_Generic family ID.
  * \param[in] cmd     Netlink_Generic command.
  * \param[in] version Netlink_Generic version.
- * \param[in] seq     Sequence number (0-based.)
  * \relates nl_request
  */
 void nl_gen_request(struct nlmsghdr *m, __u32 pid, __u16 family,

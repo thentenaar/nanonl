@@ -1,6 +1,6 @@
 /**
  * nanonl: monitor-addr-change: Simple multicast example.
- * Copyright (C) 2015 - 2017 Tim Hentenaar.
+ * Copyright (C) 2015 - 2025 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.
  * See the LICENSE file for details.
@@ -20,7 +20,7 @@
 #include "../src/nl_ifaddr.h"
 
 static int fd = -1;
-static char buf[8192];
+static char buf[NLMSG_GOODSIZE];
 static char addrbuf[INET6_ADDRSTRLEN];
 static struct nlattr *attrs[IFA_MAX + 1];
 static struct nlmsghdr *m = (struct nlmsghdr *)(void *)buf;
@@ -32,9 +32,9 @@ int main(void)
 	struct ifaddrmsg *ifa;
 	const char *label;
 	const char *disp;
-	size_t len = sizeof(buf);
+	size_t len;
 
-	memset(buf, 0, sizeof(buf));
+	memset(buf, 0, sizeof buf);
 	if ((fd = nl_open(NETLINK_ROUTE, (__u32)getpid())) < 0) {
 		perror("Unable to open netlink socket");
 		goto ret;
@@ -48,8 +48,8 @@ int main(void)
 
 loop:
 	errno = 0;
-	len = sizeof(buf);
-	memset(m, 0, sizeof(*m));
+	len = sizeof buf;
+	memset(m, 0, sizeof *m);
 
 	puts("Waiting for events...");
 	if (nl_recv(fd, m, len, &pid) <= 0) {
@@ -72,13 +72,13 @@ loop:
 
 		/* Print the address */
 		label = "<none>";
-		memset(attrs, 0, sizeof(attrs));
+		memset(attrs, 0, sizeof attrs);
 		nl_ifa_get_attrv(e, attrs);
 		if (attrs[IFA_LABEL]) label = NLA_DATA(attrs[IFA_LABEL]);
 		if (attrs[IFA_LABEL] && attrs[IFA_ADDRESS]) {
 			inet_ntop(ifa->ifa_family,
 			          NLA_DATA(attrs[IFA_ADDRESS]),
-			          addrbuf, sizeof(addrbuf));
+			          addrbuf, sizeof addrbuf);
 			printf("%s has %s address: %s\n", label, disp,
 			       addrbuf);
 		}

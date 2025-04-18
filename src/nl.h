@@ -2,7 +2,7 @@
  * \file nl.h
  *
  * nanonl: Common Netlink Functions
- * Copyright (C) 2015 - 2017 Tim Hentenaar.
+ * Copyright (C) 2015 - 2025 Tim Hentenaar.
  *
  * This code is Licensed under the Simplified BSD License.
  * See the LICENSE file for details.
@@ -22,6 +22,10 @@
 #undef NLA_HDRLEN
 #define NLA_ALIGN(X) (((X) + 3) & 0xfffc)
 #define NLA_HDRLEN (NLA_ALIGN(sizeof(struct nlattr)))
+
+#ifndef NLMSG_GOODSIZE
+#define NLMSG_GOODSIZE 8192
+#endif
 
 /* Re-define this to get rid of an alignment change warning */
 #undef NLMSG_NEXT

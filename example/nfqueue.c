@@ -1,6 +1,6 @@
 /**
  * nanonl: nfqueue: Simple NFQUEUE example
- * Copyright (C) 2015 - 2017 Tim Hentenaar.
+ * Copyright (C) 2015 - 2025 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.
  * See the LICENSE file for details.
@@ -19,17 +19,17 @@
 
 static int fd = -1;
 static __u16 qn = 0;
-static char buf[8192];
+static char buf[NLMSG_GOODSIZE];
 static struct nlmsghdr *m = (struct nlmsghdr *)(void *)buf;
 
 int main(int argc, const char *argv[])
 {
 	__u32 pid;
 	struct nfqnl_msg_packet_hdr *phdr;
-	size_t len = sizeof(buf);
+	size_t len;
 
 	if (argc > 1) qn = (__u16)atoi(argv[1]);
-	memset(buf, 0, sizeof(buf));
+	memset(buf, 0, sizeof buf);
 	if ((fd = nl_open(NETLINK_NETFILTER, (__u32)getpid())) < 0) {
 		perror("Unable to open netlink socket");
 		goto ret;
@@ -59,8 +59,8 @@ int main(int argc, const char *argv[])
 
 	do { /* Read and accept packets */
 		errno = 0;
-		len = sizeof(buf);
-		memset(m, 0, sizeof(*m));
+		len   = sizeof buf;
+		memset(m, 0, sizeof *m);
 
 		puts("Waiting for packet...");
 		if (nl_recv(fd, m, len, &pid) <= 0) {

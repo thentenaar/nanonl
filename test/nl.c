@@ -6,8 +6,8 @@
 #include "../src/nl.c"
 
 /* 8k is the maximum netlink packet size */
-char buf[8192];
-static struct nlmsghdr *m = (struct nlmsghdr *)(void *)buf;
+char buf[NLMSG_GOODSIZE];
+struct nlmsghdr *m = (struct nlmsghdr *)(void *)buf;
 
 static void setup(void)
 {

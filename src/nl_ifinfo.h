@@ -2,7 +2,7 @@
  * \file nl_ifinfo.h
  *
  * nanonl: Netlink Interface Info functions
- * Copyright (C) 2015 - 2017 Tim Hentenaar.
+ * Copyright (C) 2015 - 2025 Tim Hentenaar.
  *
  * This code is Licensed under the Simplified BSD License.
  * See the LICENSE file for details.

@@ -2,9 +2,9 @@ nanonl
 ======
 
 This library implements a small set of helper functions for constructing
-netlink messages, and looking up netlink attributes (NLAs) within nmessages.
+netlink messages, and looking up netlink attributes (NLAs) within messages.
 
-The helper functions for each subsystem mau be independently enabled.
+The helper functions for each subsystem may be independently enabled.
 
 Configure Options
 -----------------

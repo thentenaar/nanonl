@@ -1,14 +1,11 @@
 /**
  * nanonl: Netlink Conntrack Functions
- * Copyright (C) 2015 - 2017 Tim Hentenaar.
+ * Copyright (C) 2015 - 2025 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.
  * See the LICENSE file for details.
  */
 
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
 #include <arpa/inet.h>
 
 #include "nl.h"

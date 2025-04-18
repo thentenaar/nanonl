@@ -1,6 +1,6 @@
 /**
  * nanonl: monitor-nd: Monitor the neighbor table.
- * Copyright (C) 2015 - 2017 Tim Hentenaar.
+ * Copyright (C) 2015 - 2025 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.
  * See the LICENSE file for details.
@@ -20,7 +20,7 @@
 #include "../src/nl_nd.h"
 
 static int fd = -1;
-static char buf[8192];
+static char buf[NLMSG_GOODSIZE];
 static char addrbuf[INET6_ADDRSTRLEN];
 static struct nlattr *attrs[NDA_MAX + 1];
 static struct nlmsghdr *m = (struct nlmsghdr *)(void *)buf;
@@ -34,9 +34,9 @@ int main(void)
 	const char *disp;
 	char state[9];
 	const unsigned char *lladdr;
-	size_t len = sizeof(buf);
+	size_t len;
 
-	memset(buf, 0, sizeof(buf));
+	memset(buf, 0, sizeof buf);
 	if ((fd = nl_open(NETLINK_ROUTE, (__u32)getpid())) < 0) {
 		perror("Unable to open netlink socket");
 		goto ret;
@@ -50,8 +50,8 @@ int main(void)
 
 loop:
 	errno = 0;
-	len = sizeof(buf);
-	memset(m, 0, sizeof(*m));
+	len = sizeof buf;
+	memset(m, 0, sizeof *m);
 
 	if (nl_recv(fd, m, len, &pid) <= 0) {
 		if (errno < 0) {
@@ -80,12 +80,12 @@ loop:
 		if (ndm->ndm_state & NUD_NOARP)      state[6] = 'N';
 		if (ndm->ndm_state & NUD_PERMANENT)  state[7] = 'P';
 
-		memset(attrs, 0, sizeof(attrs));
+		memset(attrs, 0, sizeof attrs);
 		nl_nd_get_attrv(e, attrs);
 		if (attrs[NDA_DST] && attrs[NDA_LLADDR]) {
 			inet_ntop(ndm->ndm_family,
 			          NLA_DATA(attrs[NDA_DST]),
-			          addrbuf, sizeof(addrbuf));
+			          addrbuf, sizeof addrbuf);
 			printf("[%s] %s %-46s @ ", disp, state, addrbuf);
 			lladdr = (const unsigned char *)(NLA_DATA(attrs[NDA_LLADDR]));
 			for (i = 0; i < attrs[NDA_LLADDR]->nla_len - NLA_HDRLEN; ++i)

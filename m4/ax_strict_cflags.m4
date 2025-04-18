@@ -60,6 +60,7 @@ AC_DEFUN([AX_STRICT_CFLAGS],[
 			-Wredundant-decls dnl
 			-Wbad-function-cast dnl
 			-Wno-variadic-macros dnl
+			-Wno-unsafe-buffer-usage dnl
 		])
 
 		dnl -Wformat-security was included in gcc 3.0.4

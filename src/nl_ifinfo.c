@@ -1,12 +1,11 @@
 /**
  * nanonl: Netlink Interface Info Functions
- * Copyright (C) 2015 - 2017 Tim Hentenaar.
+ * Copyright (C) 2015 - 2025 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.
  * See the LICENSE file for details.
  */
 
-#include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 #include <arpa/inet.h>
@@ -57,9 +56,9 @@ void nl_ifi_request(struct nlmsghdr *m, __u32 pid, __u8 type,
                     __u8 family, unsigned short devtype, int ifindex,
                     unsigned int flags)
 {
-	struct ifinfomsg *ifi = BYTE_OFF(m, sizeof(*m));
+	struct ifinfomsg *ifi = BYTE_OFF(m, sizeof *m);
 	if (!m) return;
-	nl_request(m, type, pid, sizeof(*ifi));
+	nl_request(m, type, pid, sizeof *ifi);
 	ifi->ifi_family = family;
 	ifi->ifi_type   = devtype;
 	ifi->ifi_index  = ifindex;

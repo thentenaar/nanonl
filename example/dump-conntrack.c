@@ -1,6 +1,6 @@
 /**
  * nanonl: dump-ct Dump conntrack entries
- * Copyright (C) 2015 - 2019 Tim Hentenaar.
+ * Copyright (C) 2015 - 2025 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.
  * See the LICENSE file for details.
@@ -22,7 +22,7 @@
 #include "../src/nl_nfct.h"
 
 static int fd = -1;
-static char buf[16384];
+static char buf[NLMSG_GOODSIZE << 1];
 static char addrbuf[INET6_ADDRSTRLEN];
 static struct nlattr *attrs[CTA_MAX + 1];
 static struct nlattr *tattrs[CTA_TUPLE_MAX + 1];
@@ -36,10 +36,10 @@ int main(void)
 {
 	__u32 pid = 0, mark = 0;
 	struct nlmsghdr *e;
-	size_t len = sizeof(buf);
+	size_t len;
 	unsigned short port;
 
-	memset(buf, 0, sizeof(buf));
+	memset(buf, 0, sizeof buf);
 	if ((fd = nl_open(NETLINK_NETFILTER, (__u32)getpid())) < 0) {
 		perror("Unable to open netlink socket");
 		goto ret;
@@ -52,8 +52,8 @@ int main(void)
 	}
 
 	errno = 0;
-	len = sizeof(buf);
-	memset(m, 0, sizeof(*m));
+	len = sizeof buf;
+	memset(m, 0, sizeof *m);
 	if (nl_recv(fd, m, len, &pid) <= 0) {
 		if (errno < 0) {
 			fprintf(stderr, "Got netlink error #%d\n",
@@ -69,11 +69,11 @@ int main(void)
 			continue;
 
 		mark = 0;
-		memset(attrs, 0, sizeof(attrs));
-		memset(tattrs, 0, sizeof(tattrs));
-		memset(pattrs, 0, sizeof(pattrs));
-		memset(o, 0, sizeof(o));
-		memset(r, 0, sizeof(r));
+		memset(attrs, 0, sizeof attrs);
+		memset(tattrs, 0, sizeof tattrs);
+		memset(pattrs, 0, sizeof pattrs);
+		memset(o, 0, sizeof o);
+		memset(r, 0, sizeof r);
 
 		nl_nf_get_attrv(e, attrs);
 		nla_get_attrv(attrs[CTA_TUPLE_ORIG], tattrs, CTA_TUPLE_MAX);
@@ -84,15 +84,15 @@ int main(void)
 			mark = ntohl(*(__u32 *)NLA_DATA(attrs[CTA_MARK]));
 
 		/* Print the source address / port */
-		memset(addrbuf, 0, sizeof(addrbuf));
+		memset(addrbuf, 0, sizeof addrbuf);
 		if (ipattrs[CTA_IP_V6_SRC]) {
 			inet_ntop(AF_INET6,
 			          NLA_DATA(ipattrs[CTA_IP_V6_SRC]),
-			          addrbuf, sizeof(addrbuf));
+			          addrbuf, sizeof addrbuf);
 		} else if (ipattrs[CTA_IP_V4_SRC]) {
 			inet_ntop(AF_INET,
 			          NLA_DATA(ipattrs[CTA_IP_V4_SRC]),
-			          addrbuf, sizeof(addrbuf));
+			          addrbuf, sizeof addrbuf);
 		} else continue;
 
 		port = 0;
@@ -105,15 +105,15 @@ int main(void)
 		printf("%s (%u) -> ", addrbuf, port);
 
 		/* Print the destination address / port */
-		memset(addrbuf, 0, sizeof(addrbuf));
+		memset(addrbuf, 0, sizeof addrbuf);
 		if (ipattrs[CTA_IP_V6_DST]) {
 			inet_ntop(AF_INET6,
 			          NLA_DATA(ipattrs[CTA_IP_V6_DST]),
-			          addrbuf, sizeof(addrbuf));
+			          addrbuf, sizeof addrbuf);
 		} else if (ipattrs[CTA_IP_V4_DST]) {
 			inet_ntop(AF_INET,
 			          NLA_DATA(ipattrs[CTA_IP_V4_DST]),
-			          addrbuf, sizeof(addrbuf));
+			          addrbuf, sizeof addrbuf);
 		}
 
 		port = 0;

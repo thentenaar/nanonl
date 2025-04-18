@@ -1,13 +1,11 @@
 /**
  * nanonl: Netlink Nfqueue Functions
- * Copyright (C) 2015 - 2017 Tim Hentenaar.
+ * Copyright (C) 2015 - 2025 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.
  * See the LICENSE file for details.
  */
 
-#include <stdlib.h>
-#include <string.h>
 #include <arpa/inet.h>
 
 #include "nl.h"
@@ -27,7 +25,7 @@ void nl_nfqueue_cfg_cmd(struct nlmsghdr *m, __u8 cmd, __u16 pf, __u16 qn)
 	c.pf = htons(pf);
 
 	nl_nfqueue_request(m, 0, NFQNL_MSG_CONFIG, (__u8)pf, qn);
-	nl_add_attr(m, NFQA_CFG_CMD, &c, sizeof(c));
+	nl_add_attr(m, NFQA_CFG_CMD, &c, sizeof c);
 }
 
 /**
@@ -52,13 +50,13 @@ void nl_nfqueue_bind(struct nlmsghdr *m, __u16 pf, __u16 queue_num,
 	params.copy_mode  = cmode;
 	params.copy_range = htonl(crange);
 	nl_nfqueue_cfg_cmd(m, NFQNL_CFG_CMD_BIND, pf, queue_num);
-	nl_add_attr(m, NFQA_CFG_PARAMS, &params, sizeof(params));
+	nl_add_attr(m, NFQA_CFG_PARAMS, &params, sizeof params);
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0)
 	if (want_ct) {
 		fl = htonl(NFQA_CFG_F_CONNTRACK);
-		nl_add_attr(m, NFQA_CFG_FLAGS, &fl, sizeof(fl));
-		nl_add_attr(m, NFQA_CFG_MASK,  &fl, sizeof(fl));
+		nl_add_attr(m, NFQA_CFG_FLAGS, &fl, sizeof fl);
+		nl_add_attr(m, NFQA_CFG_MASK,  &fl, sizeof fl);
 	}
 #else
 	(void)want_ct;
@@ -66,7 +64,7 @@ void nl_nfqueue_bind(struct nlmsghdr *m, __u16 pf, __u16 queue_num,
 
 	if (maxlen) {
 		fl = htonl(maxlen);
-		nl_add_attr(m, NFQA_CFG_QUEUE_MAXLEN, &fl, sizeof(fl));
+		nl_add_attr(m, NFQA_CFG_QUEUE_MAXLEN, &fl, sizeof fl);
 	}
 }
 
@@ -88,7 +86,7 @@ void nl_nfqueue_verdict(struct nlmsghdr *m, __u16 queue_num,
 	v.verdict = htonl(verdict);
 	v.id      = htonl(packet_id);
 	nl_nfqueue_request(m, 0, NFQNL_MSG_VERDICT, 0, queue_num);
-	nl_add_attr(m, NFQA_VERDICT_HDR, &v, sizeof(v));
+	nl_add_attr(m, NFQA_VERDICT_HDR, &v, sizeof v);
 }
 
 /**
@@ -102,7 +100,7 @@ void nl_nfqueue_verdict(struct nlmsghdr *m, __u16 queue_num,
 void nl_nfqueue_verdict_mark(struct nlmsghdr *m, __u32 mark)
 {
 	mark = htonl(mark);
-	nl_add_attr(m, NFQA_MARK, &mark, sizeof(__u32));
+	nl_add_attr(m, NFQA_MARK, &mark, sizeof mark);
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0)
@@ -121,7 +119,7 @@ void nl_nfqueue_verdict_ctmark(struct nlmsghdr *m, __u32 mark)
 	struct nlattr *nla;
 	mark = htonl(mark);
 	nla = nla_start(m, NFQA_CT);
-	nla_add_attr(nla, CTA_MARK, &mark, sizeof(mark));
+	nla_add_attr(nla, CTA_MARK, &mark, sizeof mark);
 	nla_end(m, nla);
 }
 #endif

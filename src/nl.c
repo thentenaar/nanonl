@@ -1,6 +1,6 @@
 /**
  * nanonl: Common Netlink Functions
- * Copyright (C) 2015 - 2017 Tim Hentenaar.
+ * Copyright (C) 2015 - 2025 Tim Hentenaar.
  *
  * Licensed under the Simplified BSD License.
  * See the LICENSE file for details.
@@ -49,7 +49,7 @@ int nl_open(int protocol, __u32 port)
 	nl_set_sa(&sa, port);
 
 	if ((fd = socket(AF_NETLINK, SOCK_RAW, protocol)) < 0 ||
-	    bind(fd, (struct sockaddr *)&sa, sizeof(sa))) {
+	    bind(fd, (struct sockaddr *)&sa, sizeof sa)) {
 		if (fd >= 0) close(fd);
 		return -1;
 	}
@@ -445,14 +445,14 @@ ret:
  * struct nlattr *attrs[IFA_MAX + 1];
  * char buf[INET6_ADDRSTRLEN];
  *
- * memset(attrs, 0, sizeof(attrs));
+ * memset(attrs, 0, sizeof attrs);
  * if (!nl_get_attrv(m, sizeof(struct ifaddrmsg), attrs, IFA_MAX))
  * 	nothing_found;
  * if (attrs[IFA_LABEL] && attrs[IFA_ADDRESS])
  * 	printf("Label: %s, Addr: %s\n",
  * 	       (char *)attrs[IFA_ADDRESS].data,
  * 	       inet_ntop(PF_INET, attrs[IFA_LABEL].data,
- * 	       buf, sizeof(buf)));
+ * 	       buf, sizeof buf));
  * \endcode
  */
 __u16 nl_get_attrv(struct nlmsghdr *m, size_t extra_len,
@@ -495,7 +495,7 @@ ret:
  * struct nlattr *nla;
  * struct nlattr *attrs[CTA_IP_MAX + 1];
  *
- * memset(attrs, 0, sizeof(attrs));
+ * memset(attrs, 0, sizeof attrs);
  * if (!nla_get_attrv(nla, attrs, CTA_IP_MAX))
  * 	nothing_found;
  * if (attrs[CTA_IP_V4_SRC] && attrs[CTA_IP_V4_DST])
