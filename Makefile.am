@@ -1,4 +1,5 @@
 incdir=$(includedir)/nanonl
+ACLOCAL_AMFLAGS = -I m4
 
 if HAVE_CHECK
 check_PROGRAMS = tests
@@ -50,7 +51,7 @@ inc_HEADERS += src/nl_nd.h
 libnanonl_la_SOURCES += src/nl_nd.c
 endif
 
-examples: 
+examples:
 	@$(MAKE) -C example all
 
 clean-local:
